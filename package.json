@@ -1,0 +1,103 @@
+{
+  "name": "harmony-pipeline",
+  "version": "1.0.0",
+  "description": "A robust TypeScript pipeline execution library with stage-based processing, dependency resolution, and comprehensive error handling",
+  "author": "Khaled Sameer <khaled.smq@hotmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/KhaledSMQ/harmony-pipeline#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KhaledSMQ/harmony-pipeline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KhaledSMQ/harmony-pipeline/issues"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run build:types && rollup -c",
+    "build:prod": "NODE_ENV=production npm run build",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "dev": "rollup -c -w",
+    "clean": "rimraf dist",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "docs": "typedoc src/index.ts",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "prepublishOnly": "npm run type-check && npm run test && npm run build:prod",
+    "prepack": "npm run build:prod",
+    "size-check": "bundlewatch",
+    "validate": "npm run type-check && npm run lint && npm run test"
+  },
+  "keywords": [
+    "typescript",
+    "pipeline",
+    "data-processing",
+    "workflow",
+    "dag",
+    "stream-processing",
+    "async",
+    "concurrent",
+    "error-handling",
+    "observability",
+    "functional-programming"
+  ],
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.27.1",
+    "@eslint/js": "^9.28.0",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.0.1",
+    "bundlewatch": "^0.4.1",
+    "eslint": "^9.28.0",
+    "globals": "^16.2.0",
+    "jest": "^30.0.0",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.43.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "ts-jest": "^29.4.0",
+    "tslib": "^2.8.1",
+    "typedoc": "^0.28.5",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0"
+  },
+  "bundlewatch": {
+    "files": [
+      {
+        "path": "./dist/index.js",
+        "maxSize": "15kb"
+      },
+      {
+        "path": "./dist/index.mjs",
+        "maxSize": "15kb"
+      }
+    ]
+  }
+}
