@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Harmony Pipeline Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .demo-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .demo-card h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .input-group input, .input-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .input-group input:focus, .input-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .results {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .success {
+      border-left: 4px solid #28a745;
+      background-color: #d4edda;
+    }
+
+    .error {
+      border-left: 4px solid #dc3545;
+      background-color: #f8d7da;
+    }
+
+    .warning {
+      border-left: 4px solid #ffc107;
+      background-color: #fff3cd;
+    }
+
+    .execution-flow {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .stage-visualization {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .stage-visualization.pending {
+      background-color: #e9ecef;
+      color: #6c757d;
+    }
+
+    .stage-visualization.running {
+      background-color: #cce5ff;
+      color: #0066cc;
+      animation: pulse 1.5s infinite;
+    }
+
+    .stage-visualization.completed {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .stage-visualization.failed {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .stage-arrow {
+      margin: 0 15px;
+      color: #667eea;
+      font-size: 18px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .metric-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: block;
+    }
+
+    .metric-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .code-block {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+
+    .log-entry {
+      padding: 5px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .log-timestamp {
+      color: #6c757d;
+      font-size: 11px;
+    }
+
+    .log-level {
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      margin-right: 8px;
+    }
+
+    .log-level.info {
+      background: #bee5eb;
+      color: #0c5460;
+    }
+
+    .log-level.warn {
+      background: #ffeaa7;
+      color: #856404;
+    }
+
+    .log-level.error {
+      background: #f5c6cb;
+      color: #721c24;
+    }
+
+    .log-level.debug {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: white;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="loading" id="loading">
+  <div class="loading-spinner"></div>
+  <div>Loading Harmony Pipeline...</div>
+</div>
+
+<div class="container" id="app" style="display: none;">
+  <div class="header">
+    <h1>🔗 Harmony Pipeline</h1>
+    <p>Interactive Demo - Type-Safe Data Processing Pipelines</p>
+  </div>
+
+  <div class="demo-grid">
+    <!-- Text Processing Demo -->
+    <div class="demo-card">
+      <h3>📝 Text Processing Pipeline</h3>
+      <div class="input-group">
+        <label for="textInput">Input Text:</label>
+        <textarea id="textInput" placeholder="Enter text to process..."
+                  rows="3">  Hello World! This is a sample text.  </textarea>
+      </div>
+      <button class="btn" onclick="runTextPipeline()">Process Text</button>
+      <button class="btn" onclick="runTextPipelineWithErrors()">Test Error Handling</button>
+      <div class="results" id="textResults"></div>
+    </div>
+
+    <!-- Data Transformation Demo -->
+    <div class="demo-card">
+      <h3>🔄 Data Transformation Pipeline</h3>
+      <div class="input-group">
+        <label for="dataInput">JSON Data:</label>
+        <textarea id="dataInput" placeholder="Enter JSON data..." rows="3">{"users": [{"name": "john doe", "age": "25"}, {"name": "jane smith", "age": "30"}]}</textarea>
+      </div>
+      <button class="btn" onclick="runDataPipeline()">Transform Data</button>
+      <button class="btn" onclick="runConcurrentPipeline()">Run Concurrent</button>
+      <div class="results" id="dataResults"></div>
+    </div>
+  </div>
+
+  <!-- Execution Flow Visualization -->
+  <div class="execution-flow">
+    <h3>🎯 Pipeline Execution Flow</h3>
+    <div id="executionFlow"></div>
+    <div class="metrics" id="metrics"></div>
+  </div>
+
+  <!-- Advanced Features Demo -->
+  <div class="demo-grid">
+    <div class="demo-card">
+      <h3>⚡ Advanced Features</h3>
+      <button class="btn" onclick="demonstrateTimeout()">Timeout Demo</button>
+      <button class="btn" onclick="demonstrateCancellation()">Cancellation Demo</button>
+      <button class="btn" onclick="demonstrateWarnings()">Warnings Demo</button>
+      <button class="btn" onclick="demonstrateDependencies()">Dependencies Demo</button>
+      <div class="results" id="advancedResults"></div>
+    </div>
+
+    <div class="demo-card">
+      <h3>📊 Event Monitoring</h3>
+      <button class="btn" onclick="clearLogs()">Clear Logs</button>
+      <div class="results" id="eventLogs" style="max-height: 250px; overflow-y: auto;"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // Import the harmony-pipeline library
+  import * as HarmonyPipeline from '../dist/index.mjs';
+
+  // Make it globally available for the demo functions
+  window.HarmonyPipeline = HarmonyPipeline;
+
+  // Global state for demo
+  let currentPipeline = null;
+  let eventLogs = [];
+  let executionStartTime = 0;
+
+  // Logger implementation for demo
+  class DemoLogger {
+    constructor() {
+      this.logs = [];
+    }
+
+    debug(message, data) {
+      this.log('debug', message, data);
+    }
+
+    info(message, data) {
+      this.log('info', message, data);
+    }
+
+    warn(message, data) {
+      this.log('warn', message, data);
+    }
+
+    error(message, data) {
+      this.log('error', message, data);
+    }
+
+    log(level, message, data) {
+      const entry = {
+        timestamp: new Date().toISOString(),
+        level,
+        message,
+        data
+      };
+      this.logs.push(entry);
+      eventLogs.push(entry);
+      updateEventLogs();
+    }
+  }
+
+  // Create logger instance
+  const logger = new DemoLogger();
+  window.logger = logger;
+  window.eventLogs = eventLogs;
+
+  // Text Processing Pipeline
+  window.runTextPipeline = async function () {
+    const input = document.getElementById('textInput').value;
+    const resultsEl = document.getElementById('textResults');
+
+    try {
+      // Create stages
+      const inputStage = HarmonyPipeline.createStage('input');
+      const cleanStage = HarmonyPipeline.createStage('clean', {dependencies: ['input']});
+      const transformStage = HarmonyPipeline.createStage('transform', {dependencies: ['clean']});
+      const outputStage = HarmonyPipeline.createStage('output', {dependencies: ['transform']});
+
+      // Create processors
+      const trimProcessor = HarmonyPipeline.createSimpleProcessor(
+              'trimmer',
+              inputStage,
+              (text) => {
+                logger.info('Trimming text', {originalLength: text.length});
+                return text.trim();
+              }
+      );
+
+      const cleanProcessor = HarmonyPipeline.createSimpleProcessor(
+              'cleaner',
+              cleanStage,
+              (text) => {
+                logger.info('Cleaning text');
+                return text.replace(/\s+/g, ' ');
+              }
+      );
+
+      const upperCaseProcessor = HarmonyPipeline.createSimpleProcessor(
+              'upperCase',
+              transformStage,
+              (text) => {
+                logger.info('Converting to uppercase');
+                return text.toUpperCase();
+              }
+      );
+
+      const finalProcessor = HarmonyPipeline.createSimpleProcessor(
+              'finalizer',
+              outputStage,
+              (text) => {
+                logger.info('Finalizing text', {finalLength: text.length});
+                return `Processed: ${text}`;
+              }
+      );
+
+      // Build pipeline
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(trimProcessor, cleanProcessor, upperCaseProcessor, finalProcessor)
+              .build();
+
+      // Create context
+      const context = HarmonyPipeline.createPipelineContext(
+              {operation: 'text-processing', timestamp: Date.now()},
+              logger
+      );
+
+      // Setup event monitoring
+      setupPipelineMonitoring(pipeline);
+
+      // Execute pipeline
+      executionStartTime = Date.now();
+      const result = await pipeline.execute(input, context);
+
+      displayResult(resultsEl, result, 'Text processing completed successfully!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  window.runTextPipelineWithErrors = async function () {
+    const input = document.getElementById('textInput').value;
+    const resultsEl = document.getElementById('textResults');
+
+    try {
+      const stage = HarmonyPipeline.createStage('error-demo');
+
+      const errorProcessor = HarmonyPipeline.createSimpleProcessor(
+              'error-generator',
+              stage,
+              (text) => {
+                if (text.length < 5) {
+                  throw new Error('Text too short for processing');
+                }
+                return text;
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(errorProcessor)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+      setupPipelineMonitoring(pipeline);
+
+      const result = await pipeline.execute(input, context);
+      displayResult(resultsEl, result, 'Unexpected success!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  // Data Transformation Pipeline
+  window.runDataPipeline = async function () {
+    const input = document.getElementById('dataInput').value;
+    const resultsEl = document.getElementById('dataResults');
+
+    try {
+      const data = JSON.parse(input);
+
+      const parseStage = HarmonyPipeline.createStage('parse');
+      const validateStage = HarmonyPipeline.createStage('validate', {dependencies: ['parse']});
+      const transformStage = HarmonyPipeline.createStage('transform', {dependencies: ['validate']});
+
+      const parseProcessor = HarmonyPipeline.createSimpleProcessor(
+              'parser',
+              parseStage,
+              (data) => {
+                logger.info('Parsing data structure');
+                return data;
+              }
+      );
+
+      const validateProcessor = HarmonyPipeline.createSimpleProcessor(
+              'validator',
+              validateStage,
+              (data, context) => {
+                logger.info('Validating data');
+                if (!data.users || !Array.isArray(data.users)) {
+                  context.addWarning('MISSING_USERS', 'Users array is missing or invalid');
+                  return {users: []};
+                }
+                return data;
+              }
+      );
+
+      const transformProcessor = HarmonyPipeline.createSimpleProcessor(
+              'transformer',
+              transformStage,
+              (data) => {
+                logger.info('Transforming user data');
+                return {
+                  ...data,
+                  users: data.users.map(user => ({
+                    ...user,
+                    name: user.name.toUpperCase(),
+                    age: parseInt(user.age),
+                    id: Math.random().toString(36).substr(2, 9)
+                  }))
+                };
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(parseProcessor, validateProcessor, transformProcessor)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext(
+              {operation: 'data-transformation'},
+              logger
+      );
+
+      setupPipelineMonitoring(pipeline);
+      executionStartTime = Date.now();
+
+      const result = await pipeline.execute(data, context);
+      displayResult(resultsEl, result, 'Data transformation completed!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  window.runConcurrentPipeline = async function () {
+    const input = document.getElementById('dataInput').value;
+    const resultsEl = document.getElementById('dataResults');
+
+    try {
+      const data = JSON.parse(input);
+
+      const concurrentStage = HarmonyPipeline.createStage('concurrent');
+
+      const processor1 = HarmonyPipeline.createSimpleProcessor(
+              'async-processor-1',
+              concurrentStage,
+              async (data) => {
+                logger.info('Concurrent processor 1 starting');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                logger.info('Concurrent processor 1 completed');
+                return {...data, processor1: 'completed'};
+              }
+      );
+
+      const processor2 = HarmonyPipeline.createSimpleProcessor(
+              'async-processor-2',
+              concurrentStage,
+              async (data) => {
+                logger.info('Concurrent processor 2 starting');
+                await new Promise(resolve => setTimeout(resolve, 300));
+                logger.info('Concurrent processor 2 completed');
+                return {...data, processor2: 'completed'};
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(processor1, processor2)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+
+      setupPipelineMonitoring(pipeline);
+      executionStartTime = Date.now();
+
+      const result = await pipeline.execute(data, context, {concurrency: 2});
+      displayResult(resultsEl, result, 'Concurrent processing completed!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  // Advanced Features
+  window.demonstrateTimeout = async function () {
+    const resultsEl = document.getElementById('advancedResults');
+
+    try {
+      const stage = HarmonyPipeline.createStage('timeout-demo');
+
+      const slowProcessor = HarmonyPipeline.createSimpleProcessor(
+              'slow-processor',
+              stage,
+              async (data) => {
+                logger.info('Starting slow operation...');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                return data;
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(slowProcessor)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+      setupPipelineMonitoring(pipeline);
+
+      // Set timeout to 1 second
+      const result = await pipeline.execute('test', context, {timeoutMs: 500});
+      displayResult(resultsEl, result, 'Unexpected completion!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  window.demonstrateCancellation = async function () {
+    const resultsEl = document.getElementById('advancedResults');
+
+    try {
+      const stage = HarmonyPipeline.createStage('cancellation-demo');
+
+      const cancellableProcessor = HarmonyPipeline.createSimpleProcessor(
+              'cancellable-processor',
+              stage,
+              async (data, context, signal) => {
+                logger.info('Starting cancellable operation...');
+
+                for (let i = 0; i < 10; i++) {
+                  if (signal?.aborted) {
+                    throw new Error('Operation was cancelled');
+                  }
+                  await new Promise(resolve => setTimeout(resolve, 200));
+                  logger.info(`Progress: ${i + 1}/10`);
+                }
+
+                return data;
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(cancellableProcessor)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+      const controller = new AbortController();
+
+      setupPipelineMonitoring(pipeline);
+
+      // Cancel after 1 second
+      setTimeout(() => {
+        logger.warn('Cancelling operation...');
+        controller.abort();
+      }, 1000);
+
+      const result = await pipeline.execute('test', context, {signal: controller.signal});
+      displayResult(resultsEl, result, 'Unexpected completion!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  window.demonstrateWarnings = async function () {
+    const resultsEl = document.getElementById('advancedResults');
+
+    try {
+      const stage = HarmonyPipeline.createStage('warnings-demo');
+
+      const warningProcessor = HarmonyPipeline.createSimpleProcessor(
+              'warning-generator',
+              stage,
+              (data, context) => {
+                context.addWarning('DEMO_WARNING', 'This is a demonstration warning');
+                context.addWarning('ANOTHER_WARNING', 'Multiple warnings are supported', {severity: 'low'});
+                logger.warn('Generated demo warnings');
+                return {...data, warnings: 'added'};
+              }
+      );
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(warningProcessor)
+              .build();
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+      setupPipelineMonitoring(pipeline);
+
+      const result = await pipeline.execute({demo: true}, context);
+      displayResult(resultsEl, result, 'Warnings demonstration completed!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  window.demonstrateDependencies = async function () {
+    const resultsEl = document.getElementById('advancedResults');
+
+    try {
+      const stageA = HarmonyPipeline.createStage('stage-a');
+      const stageB = HarmonyPipeline.createStage('stage-b', {dependencies: ['stage-a']});
+      const stageC = HarmonyPipeline.createStage('stage-c', {dependencies: ['stage-a']});
+      const stageD = HarmonyPipeline.createStage('stage-d', {dependencies: ['stage-b', 'stage-c']});
+
+      const processorA = HarmonyPipeline.createSimpleProcessor('proc-a', stageA, (data) => {
+        logger.info('Stage A processing');
+        return {...data, stageA: 'completed'};
+      });
+
+      const processorB = HarmonyPipeline.createSimpleProcessor('proc-b', stageB, (data) => {
+        logger.info('Stage B processing');
+        return {...data, stageB: 'completed'};
+      });
+
+      const processorC = HarmonyPipeline.createSimpleProcessor('proc-c', stageC, (data) => {
+        logger.info('Stage C processing');
+        return {...data, stageC: 'completed'};
+      });
+
+      const processorD = HarmonyPipeline.createSimpleProcessor('proc-d', stageD, (data) => {
+        logger.info('Stage D processing (depends on B and C)');
+        return {...data, stageD: 'completed'};
+      });
+
+      const pipeline = HarmonyPipeline.createPipelineBuilder()
+              .withProcessor(processorD, processorC, processorB, processorA) // Intentionally out of order
+              .build();
+
+      logger.info('Stage execution order:', {order: pipeline.getStageExecutionOrder()});
+
+      const context = HarmonyPipeline.createPipelineContext({}, logger);
+      setupPipelineMonitoring(pipeline);
+
+      const result = await pipeline.execute({start: true}, context);
+      displayResult(resultsEl, result, 'Dependency resolution demonstration completed!');
+
+    } catch (error) {
+      displayError(resultsEl, error);
+    }
+  };
+
+  // Event monitoring and visualization
+  function setupPipelineMonitoring(pipeline) {
+    const flowEl = document.getElementById('executionFlow');
+    const metricsEl = document.getElementById('metrics');
+
+    let stages = new Map();
+    let stageCount = 0;
+    let processorCount = 0;
+    let errorCount = 0;
+    let warningCount = 0;
+
+    pipeline.on('pipelineStart', () => {
+      logger.info('Pipeline execution started');
+      flowEl.innerHTML = '<p>🚀 Pipeline starting...</p>';
+      updateMetrics();
+    });
+
+    pipeline.on('stageStart', ({stage}) => {
+      logger.info(`Stage '${stage}' started`);
+      stages.set(stage, 'running');
+      stageCount++;
+      updateStageVisualization();
+      updateMetrics();
+    });
+
+    pipeline.on('stageEnd', ({stage}) => {
+      logger.info(`Stage '${stage}' completed`);
+      stages.set(stage, 'completed');
+      updateStageVisualization();
+      updateMetrics();
+    });
+
+    pipeline.on('processorStart', ({stage, processor}) => {
+      logger.info(`Processor '${processor}' in stage '${stage}' started`);
+    });
+
+    pipeline.on('processorEnd', ({stage, processor, outcome}) => {
+      logger.info(`Processor '${processor}' in stage '${stage}' ${outcome.kind === 'ok' ? 'completed' : 'failed'}`);
+      processorCount++;
+      if (outcome.kind === 'err') {
+        errorCount++;
+        stages.set(stage, 'failed');
+      }
+      updateStageVisualization();
+      updateMetrics();
+    });
+
+    pipeline.on('warning', (warning) => {
+      logger.warn(`Warning: ${warning.code} - ${warning.message}`);
+      warningCount++;
+      updateMetrics();
+    });
+
+    pipeline.on('error', (error) => {
+      logger.error(`Error: ${error.message}`);
+      errorCount++;
+      updateMetrics();
+    });
+
+    pipeline.on('pipelineEnd', (result) => {
+      logger.info(`Pipeline ${result.success ? 'completed successfully' : 'failed'}`, {
+        executionTime: result.executionTime,
+        stages: result.stages.length,
+        errors: result.errors.length,
+        warnings: result.warnings.length
+      });
+      updateMetrics();
+    });
+
+    function updateStageVisualization() {
+      const stageElements = Array.from(stages.entries()).map(([stage, status]) => {
+        return `<div class="stage-visualization ${status}">
+                        <span>${getStageIcon(status)} ${stage}</span>
+                    </div>`;
+      }).join('<div class="stage-arrow">→</div>');
+
+      flowEl.innerHTML = stageElements || '<p>No stages to display</p>';
+    }
+
+    function updateMetrics() {
+      const executionTime = Date.now() - executionStartTime;
+      metricsEl.innerHTML = `
+                    <div class="metric-card">
+                        <span class="metric-value">${stageCount}</span>
+                        <span class="metric-label">Stages</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">${processorCount}</span>
+                        <span class="metric-label">Processors</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">${warningCount}</span>
+                        <span class="metric-label">Warnings</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">${errorCount}</span>
+                        <span class="metric-label">Errors</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value">${executionTime}ms</span>
+                        <span class="metric-label">Duration</span>
+                    </div>
+                `;
+    }
+  }
+
+  window.setupPipelineMonitoring = setupPipelineMonitoring;
+
+  function getStageIcon(status) {
+    switch (status) {
+      case 'pending':
+        return '⏳';
+      case 'running':
+        return '⚡';
+      case 'completed':
+        return '✅';
+      case 'failed':
+        return '❌';
+      default:
+        return '◯';
+    }
+  }
+
+  window.getStageIcon = getStageIcon;
+
+  // Utility functions
+  function displayResult(element, result, successMessage) {
+    const className = result.success ? 'success' : 'error';
+    element.className = `results ${className}`;
+    element.innerHTML = `
+                <div><strong>${successMessage}</strong></div>
+                <div><strong>Success:</strong> ${result.success}</div>
+                <div><strong>Execution Time:</strong> ${result.executionTime}ms</div>
+                <div><strong>Stages:</strong> ${result.stages.length}</div>
+                <div><strong>Warnings:</strong> ${result.warnings.length}</div>
+                <div><strong>Errors:</strong> ${result.errors.length}</div>
+                ${result.output ? `<div><strong>Output:</strong></div><pre>${JSON.stringify(result.output, null, 2)}</pre>` : ''}
+                ${result.warnings.length > 0 ? `<div><strong>Warnings:</strong></div><pre>${JSON.stringify(result.warnings, null, 2)}</pre>` : ''}
+                ${result.errors.length > 0 ? `<div><strong>Errors:</strong></div><pre>${result.errors.map(e => e.message).join('\n')}</pre>` : ''}
+            `;
+  }
+
+  window.displayResult = displayResult;
+
+  function displayError(element, error) {
+    element.className = 'results error';
+    element.innerHTML = `
+                <div><strong>Error occurred:</strong></div>
+                <div>${error.message}</div>
+                <pre>${error.stack}</pre>
+            `;
+  }
+
+  window.displayError = displayError;
+
+  function updateEventLogs() {
+    const logsEl = document.getElementById('eventLogs');
+    if (logsEl) {
+      logsEl.innerHTML = eventLogs.slice(-50).reverse().map(log => `
+                    <div class="log-entry">
+                        <span class="log-timestamp">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                        <span class="log-level ${log.level}">${log.level.toUpperCase()}</span>
+                        <span>${log.message}</span>
+                        ${log.data ? `<pre>${JSON.stringify(log.data, null, 2)}</pre>` : ''}
+                    </div>
+                `).join('');
+    }
+  }
+
+  window.updateEventLogs = updateEventLogs;
+
+  window.clearLogs = function () {
+    eventLogs.length = 0;
+    logger.logs.length = 0;
+    updateEventLogs();
+  };
+
+  // Initialize demo
+  function initializeDemo() {
+    // Hide loading and show app
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+
+    logger.info('Harmony Pipeline Demo initialized');
+    logger.info('Library loaded successfully', {
+      version: HarmonyPipeline.VERSION || 'unknown',
+      features: Object.keys(HarmonyPipeline)
+    });
+    updateEventLogs();
+  }
+
+  // Start the demo
+  initializeDemo();
+
+</script>
+</body>
+</html>

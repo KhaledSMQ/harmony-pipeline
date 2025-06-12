@@ -1,12 +1,7 @@
 import type { PipelineStage } from "../core/Stage";
 import type { PipelineProcessor } from "../core/Processor";
 import type { PipelineContext, PipelineWarning } from "../core/Context";
-import type {
-    PipelineResult,
-    StageFailure,
-    StageOutcome,
-    StageSuccess,
-} from "../core/Result";
+import type { PipelineResult, StageFailure, StageOutcome, StageSuccess, } from "../core/Result";
 import type { ExecutionOptions } from "../core/ExecutionOptions";
 import { NullLogger } from "../core/Logger";
 
@@ -112,7 +107,7 @@ class EventEmitter<TEvents extends Record<string, any>> {
  */
 class CancellableProcessorExecution<I, O, TCtx extends PipelineContext> {
     private readonly checkInterval = 50;
-    private cancellationTimeout?: NodeJS.Timeout;
+    private cancellationTimeout?: NodeJS.Timeout | undefined;
 
     constructor(
         private readonly processor: PipelineProcessor<I, O, TCtx>,
