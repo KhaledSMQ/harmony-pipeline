@@ -1,6 +1,6 @@
 {
   "name": "harmony-pipeline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A robust TypeScript pipeline execution library with stage-based processing, dependency resolution, and comprehensive error handling",
   "author": "Khaled Sameer <khaled.smq@hotmail.com>",
   "license": "MIT",
