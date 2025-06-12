@@ -1,11 +1,20 @@
-# Harmony Pipeline
+<p align="center">
+<a href="https://harmonytype.com" target="_blank"><img src="https://raw.githubusercontent.com/KhaledSMQ/harmony-art/main/harmony-pipeline.png" width="400" alt="Harmony Pipeline post">
+</a>
+</p>
 
-A robust TypeScript pipeline execution library with stage-based processing, dependency resolution, and comprehensive
-error handling.
+<p align="center">
 
 [![npm version](https://badge.fury.io/js/harmony-pipeline.svg)](https://badge.fury.io/js/harmony-pipeline)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+
+</p>
+
+# Harmony Pipeline
+
+A robust TypeScript pipeline execution library with stage-based processing, dependency resolution, and comprehensive
+error handling.
 
 ## Features
 
